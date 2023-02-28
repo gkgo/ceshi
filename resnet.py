@@ -343,7 +343,7 @@ class ConvNet4(nn.Module):
 #         x = x.mean(dim=[-1, -2])
 #         x = self.fc(x)
 
-        x = self.avgpool(x1)
+        x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
 
