@@ -318,15 +318,15 @@ class ConvNet4(nn.Module):
     def forward(self, x):
         x = self.encoder(x)
 
-        identity = x
+#         identity = x
 
-        x = self.scr_module(x)
+#         x = self.scr_module(x)
 
 
-        x = x + identity
+#         x = x + identity
 
-        x = F.relu(x, inplace=True)
-        #
+#         x = F.relu(x, inplace=True)
+#        
 #         b, c, h, w = x.shape
 #         x = normalize_feature(x)
 
