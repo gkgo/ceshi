@@ -55,66 +55,8 @@ class mySelfCorrelationComputation(nn.Module):
         feature_embd = self.conv1x1_out(feature_embd)
         return feature_embd
 
-def featureL2Norm(feature):
-    epsilon = 1e-6
-    norm = torch.pow(torch.sum(torch.pow(feature, 2), 1) + epsilon, 0.5).unsqueeze(1).expand_as(feature)
-    return torch.div(feature, norm)
 
-class mySelfCorrelationComputation(nn.Module):
-    def __init__(self, kernel_size=(5, 5), padding=2):
-        super(mySelfCorrelationComputation, self).__init__()
-        self.kernel_size = kernel_size
-        self.unfold = nn.Unfold(kernel_size=kernel_size, padding=padding)
 
-        # Add BatchNorm2d before the self-attention block
-        self.bn1 = nn.BatchNorm2d(640)
-        self.relu1 = nn.ReLU(inplace=False)
-
-        # Increase the number of channels in the convolution layers
-        self.conv1x1_in = nn.Sequential(nn.Conv2d(640, 128, kernel_size=1, bias=False, padding=0),
-                                        nn.BatchNorm2d(128),
-                                        nn.ReLU(inplace=True))
-        self.embeddingFea = nn.Sequential(nn.Conv2d(3328, 640,
-                                                     kernel_size=1, bias=False, padding=0),
-                                           nn.BatchNorm2d(640),
-                                           nn.ReLU(inplace=True))
-
-        # Add skip connections between the input and output of the self-attention block
-        self.conv1x1_out = nn.Sequential(
-            nn.Conv2d(768, 640, kernel_size=1, bias=False, padding=0),
-            nn.BatchNorm2d(640))
-
-        # Add dropout regularization after the self-attention block
-        self.dropout = nn.Dropout(0.2)
-
-    def forward(self, x):
-        # Apply BatchNorm2d and ReLU before the self-attention block
-        x = self.bn1(x)
-        x = self.relu1(x)
-
-        b, c, h, w = x.shape
-        x = F.normalize(x, dim=1, p=2)
-        x = self.conv1x1_in(x)
-        identity = x
-        x = self.unfold(x)
-        x = x.view(b, -1, self.kernel_size[0], self.kernel_size[1], h, w)  # b, c, u, v, h, w
-        x = x * identity.unsqueeze(2).unsqueeze(2)
-        x = x.view(b, -1, h, w)
-        feature_gs = featureL2Norm(x)
-
-        # concatenate
-        feature_cat = torch.cat([identity, feature_gs], 1)
-
-        # embed
-        feature_embd = self.embeddingFea(feature_cat)
-
-        # Add skip connection between the input and output of the self-attention block
-        feature_embd = torch.cat([feature_embd, identity], 1)
-        feature_embd = self.conv1x1_out(feature_embd)
-
-        # Add dropout regularization after the self-attention block
-        feature_embd = self.dropout(feature_embd)
-        return feature_embd
 
 class SqueezeExcitation(nn.Module):
     def __init__(self, channel, reduction=16):
