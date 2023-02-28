@@ -8,7 +8,7 @@ def featureL2Norm(feature):
     return torch.div(feature, norm)
 
 class mySelfCorrelationComputation(nn.Module):
-    def __init__(self, kernel_size=(3, 3), padding=1):
+    def __init__(self, kernel_size=(1, 1), padding=0):
         super(mySelfCorrelationComputation, self).__init__()
         planes =[640, 64, 64, 640]
         self.kernel_size = kernel_size
@@ -18,7 +18,7 @@ class mySelfCorrelationComputation(nn.Module):
         self.conv1x1_in = nn.Sequential(nn.Conv2d(planes[0], planes[1], kernel_size=1, bias=False, padding=0),
                                         nn.BatchNorm2d(planes[1]),
                                         nn.ReLU(inplace=True))
-        self.embeddingFea = nn.Sequential(nn.Conv2d(640, 640,
+        self.embeddingFea = nn.Sequential(nn.Conv2d(1280, 640,
                                                      kernel_size=1, bias=False, padding=0),
                                            nn.BatchNorm2d(640),
                                            nn.ReLU(inplace=True))
@@ -28,7 +28,7 @@ class mySelfCorrelationComputation(nn.Module):
 
     def forward(self, x):
 
-        x = self.conv1x1_in(x)
+#         x = self.conv1x1_in(x)
         b, c, h, w = x.shape
 
         x0 = self.relu(x)
@@ -152,7 +152,7 @@ class ResNet(nn.Module):
         self.layer2 = self._make_layer(block, 160, stride=2)
         self.layer3 = self._make_layer(block, 320, stride=2)
         self.layer4 = self._make_layer(block, 640, stride=2)
-        self.scr_module = mySelfCorrelationComputation(kernel_size=(5,5), padding=2)
+        self.scr_module = mySelfCorrelationComputation(kernel_size=(1,1), padding=0)
         # self.scr_module = SqueezeExcitation(channel=640)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(640, num_classes)
@@ -254,7 +254,7 @@ class ConvNet4(nn.Module):
         )
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(640, num_classes)
-        self.scr_module = mySelfCorrelationComputation(kernel_size=(3, 3), padding=1)
+        self.scr_module = mySelfCorrelationComputation(kernel_size=(1, 1), padding=0)
         # self.scr_module = SqueezeExcitation(channel=640)
 
     def forward(self, x):
