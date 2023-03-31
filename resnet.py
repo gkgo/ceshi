@@ -109,7 +109,7 @@ def normalize_feature(x):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, num_classes=10, zero_init_residual=False):
+    def __init__(self, block, num_classes=100, zero_init_residual=False):
         self.inplanes = 3
         super(ResNet, self).__init__()
 
