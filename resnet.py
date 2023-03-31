@@ -160,24 +160,28 @@ class ResNet(nn.Module):
         out1_s = self.scr_module0(out1)
         out1_s = self.maxpool(out1_s)
         out1 = out1 + out1_s
+        out1 = self.relu(out1)
 
 
         out2 = self.layer2(out1)
         out2_s = self.scr_module1(out2)
         out2_s = self.maxpool(out2_s)
         out2 = out2 + out2_s
+        out2 = self.relu(out2)
 
 
         out3 = self.layer3(out2)
         out3_s = self.scr_module2(out3)
         out3_s = self.maxpool(out3_s)
         out3 = out3 + out3_s
+        out3 = self.relu(out3)
 
 
         out4 = self.layer4(out3)
         out4_s = self.scr_module(out4)
         out4_s = self.maxpool(out4_s)
         out4 = out4 + out4_s
+        out4 = self.relu(out4)
 
 
         # ___________________________________________________________
